@@ -5,7 +5,7 @@
 global:
   replicaCount: 2
   nameSpace: development
-  
+  region: us-east-1
 image:
   repository: michaelfarook/web-app
   pullPolicy: IfNotPresent
