@@ -22,7 +22,6 @@ jobs:
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'environments/production/values.yaml'
-          propertyPath: 'frontend.version'
           propertyPath: 'applications.frontend_version'
           value: ${{ github.sha }}
           repository: MichaelFarook/gitops-env
