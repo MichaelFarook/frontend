@@ -1,9 +1,12 @@
 name: CI/CD for web application
 
+#on:
+#  push:
+#    branch:
+#      - main
+
 on:
-  push:
-    branch:
-      - main
+  workflow_dispatch:
 
 jobs:
   push_to_registry:

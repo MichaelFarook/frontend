@@ -1,0 +1,32 @@
+# In step of developing
+name: CI/CD to GitOps
+
+on:
+  push:
+    branch:
+      - main
+
+jobs:
+  update_the_image:
+    name: Update image in GitOps repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Target Repository
+        uses: actions/checkout@v3
+        with:
+          repository: MichaelFarook/gitops-env
+          path: main
+          token: ${{ .secrets.GITOPS_KEY }}
+        
+      - name: Update image in related GitOps values.yaml
+          uses: fjogeleit/yaml-update-action@main
+          with:
+            valueFile: 'environments/production/values.yaml'
+            propertyPath: 'frontend.version'
+            propertyPath: 'applications.frontend_version'
+            value: ${{ github.sha }}
+            repository: MichaelFarook/gitops-env
+            targetBranch: main 
+            message: 'Update workers Image Version to ${{ github.sha }} frontend'
+            token: ${{ secrets_GITOPS_KEY }}
+
