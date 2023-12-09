@@ -16,7 +16,7 @@ jobs:
         with:
           repository: MichaelFarook/gitops-env
           path: main
-          token: ${{ .secrets.GITOPS_KEY }}
+          token: ${{ secrets.GITOPS_KEY }}
         
       - name: Update Image Version in the related GitOps repo values.yaml
         uses: fjogeleit/yaml-update-action@main
@@ -28,4 +28,4 @@ jobs:
           repository: MichaelFarook/gitops-env
           targetBranch: main
           message: 'Update workers Image Version to ${{ github.sha }} frontend'
-          token: ${{ secrets_GITOPS_KEY }}
+          token: ${{ secrets.GITOPS_KEY }}
