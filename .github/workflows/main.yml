@@ -34,6 +34,8 @@ jobs:
   update_the_image:
     name: Update the Image version
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v3
     
@@ -47,6 +49,6 @@ jobs:
         cmd: |
           yq eval '.image.tag = strenv(TAG)' -i helm/frontend/values.yaml
       
-    - uses: stefanzweifel/git-auto-commit-action@v4
+    - uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: Apply image name changes
