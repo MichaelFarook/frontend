@@ -1,10 +1,10 @@
 # In step of developing
 name: CI/CD to GitOps
 
-on:
-  push:
-    branch:
-      - main
+#on:
+#  push:
+#    branch:
+#      - main
 
 jobs:
   update_the_image:
@@ -28,3 +28,30 @@ jobs:
           targetBranch: main
           message: 'Update workers Image Version to ${{ github.sha }} frontend'
           token: ${{ secrets.GITOPS_KEY }}
+          
+  update_the_image:
+    name: Push image tag in GitOps repo
+    runs-on: ubuntu-latest
+    env:
+      SCTIONS_ALLOW_UNSECURE_COMMANDS: true
+    steps:
+      - name: Checkout Target Repository
+        uses: actions/checkout@v3
+        with:
+          repository: MichaelFarook/gitops-env
+          path: main
+          token: ${{ secrets.GITOPS_KEY }}
+        
+      - name: Update Image Version in the related GitOps repo values.yaml
+        shell: bash
+        run: | 
+          export CITAG=${{ github.sha }}
+          export ENVIRONMENT=production
+          export BRANCH=main
+          
+          git clone git@github.com:MichaelFarook/gitops-env
+          
+          git clone git@github.com:MichaelFarook/gitops-env.git
+          cd environments
+          curl -Lo yq https://github.com/mikefarah/yq/releases/download/v4.40.4/yq_linux_amd64
+          chmod +x yq
