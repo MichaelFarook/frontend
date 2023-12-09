@@ -45,7 +45,7 @@ jobs:
       uses: mikefarah/yq@master
       with:
         cmd: |
-          yq eval '.image.tag = strenv(TAG)' -i helm/values.yaml
+          yq eval '.image.tag = strenv(TAG)' -i helm/frontend/values.yaml
       
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
