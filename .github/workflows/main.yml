@@ -1,7 +1,9 @@
 name: CI/CD
 
 on:
-  workflow_dispatch:
+  push:
+    branch:
+      - main
 
 jobs:
   push_to_registry:
