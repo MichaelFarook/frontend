@@ -55,3 +55,12 @@ jobs:
           cd environments
           curl -Lo yq https://github.com/mikefarah/yq/releases/download/v4.40.4/yq_linux_amd64
           chmod +x yq
+
+          ./yq e -i '.applications.frontend_version = strenv(CITAG)' environments/${ENVIRONMENT}/values.yaml
+          ./yq e -i '.applications.frontend_branch = strenv(GIT_BRANCH)' environments/${ENVIRONMENT}/values.yaml
+          git config credentials.helper 'cache --timetout=120'
+          git config user.email "krimfarook@protonmail.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Update from branch ${BRANCH} to envrionment ${ENVIRONMENT}, frontend"
+          git push origin devops_app
