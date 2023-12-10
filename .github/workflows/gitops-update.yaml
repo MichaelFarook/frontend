@@ -1,10 +1,10 @@
 # In step of developing
 name: CI/CD to GitOps
 
-#on:
-#  push:
-#    branch:
-#      - main
+on:
+  push:
+    branch:
+      - main
 
 jobs:
 #  update_the_image_first:
