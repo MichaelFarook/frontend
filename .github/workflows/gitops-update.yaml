@@ -7,33 +7,9 @@ on:
       - main
 
 jobs:
-#  update_the_image_first:
-#    name: Update image in GitOps repo
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout Target Repository
-#        uses: actions/checkout@v3
-#        with:
-#          repository: MichaelFarook/gitops-env
-#          path: main
-#          token: ${{ secrets.GITOPS_KEY }}
-#        
-#      - name: Update Image Version in the related GitOps repo values.yaml
-#        uses: fjogeleit/yaml-update-action@main
-#        with:
-#          valueFile: 'environments/production/values.yaml'
-#          propertyPath: 'applications.frontend_version'
-#          value: ${{ github.sha }}
-#          repository: MichaelFarook/gitops-env
-#          targetBranch: main
-#          message: 'Update workers Image Version to ${{ github.sha }} frontend'
-#          token: ${{ secrets.GITOPS_KEY }}
-          
-  update_the_image:
-    name: Push image tag in GitOps repo
+  update_the_image_first:
+    name: Update image in GitOps repo
     runs-on: ubuntu-latest
-    env:
-      SCTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
       - name: Checkout Target Repository
         uses: actions/checkout@v3
@@ -43,24 +19,13 @@ jobs:
           token: ${{ secrets.GITOPS_KEY }}
         
       - name: Update Image Version in the related GitOps repo values.yaml
-        shell: bash
-        run: | 
-          export CITAG=${{ github.sha }}
-          export ENVIRONMENT=production
-          export BRANCH=main
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'environments/production/values.yaml'
+          propertyPath: 'applications.frontend_version'
+          value: ${{ github.sha }}
+          repository: MichaelFarook/gitops-env
+          targetBranch: main
+          message: 'Update workers Image Version to ${{ github.sha }} frontend'
+          token: ${{ secrets.GITOPS_KEY }}
           
-          git clone git@github.com:MichaelFarook/gitops-env
-          
-          git clone git@github.com:MichaelFarook/gitops-env.git
-          cd environments
-          curl -Lo yq https://github.com/mikefarah/yq/releases/download/v4.40.4/yq_linux_amd64
-          chmod +x yq
-
-          ./yq e -i '.applications.frontend_version = strenv(CITAG)' environments/${ENVIRONMENT}/values.yaml
-          ./yq e -i '.applications.frontend_branch = strenv(GIT_BRANCH)' environments/${ENVIRONMENT}/values.yaml
-          git config credentials.helper 'cache --timetout=120'
-          git config user.email "krimfarook@protonmail.com"
-          git config user.name "GitHub Actions"
-          git add .
-          git commit -m "Update from branch ${BRANCH} to envrionment ${ENVIRONMENT}, frontend"
-          git push origin devops_app
