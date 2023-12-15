@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Target Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: MichaelFarook/gitops-env
           path: main
@@ -25,6 +25,7 @@ jobs:
           propertyPath: 'applications.frontend_version'
           value: ${{ github.sha }}
           repository: MichaelFarook/gitops-env
+          branch: main
           targetBranch: main
           message: 'Update workers Image Version to ${{ github.sha }} frontend'
           token: ${{ secrets.GITOPS_KEY }}
