@@ -50,9 +50,9 @@ jobs:
         with:
           valueFile: 'environments/production/values.yaml'
           propertyPath: 'applications.frontend_version'
-          value: ${TAG}
+          value: ${{TAG}}
           repository: MichaelFarook/gitops-env
           branch: main
           targetBranch: main
-          message: 'Update workers Image Version to ${TAG} frontend'
+          message: 'Update workers Image Version to ${{TAG}} frontend'
           token: ${{ secrets.GITOPS_KEY }}
