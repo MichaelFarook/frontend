@@ -27,10 +27,10 @@ jobs:
 #        id: build-and-push-docker-image
 #        run: |
 #          docker build \
-#            --tag ${{ secrets.DOCKER_ACCOUNT }}/web-app:${TAG} \
+#            --tag ${{ secrets.DOCKER_ACCOUNT }}/web-app:prod-${TAG} \
 #            .
 #
-#          docker push ${{ secrets.DOCKER_ACCOUNT }}/web-app:${TAG}
+#          docker push ${{ secrets.DOCKER_ACCOUNT }}/web-app:prod-${TAG}
 
   update_the_image_test:
     name: Update image in GitOps repo
@@ -50,7 +50,7 @@ jobs:
         with:
           valueFile: 'environments/production/values.yaml'
           propertyPath: 'applications.frontend_version'
-          value: ${{ github.sha }}
+          value: prod-${{ github.sha }}
           repository: MichaelFarook/gitops-env
           branch: main
           targetBranch: main
