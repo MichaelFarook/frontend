@@ -7,7 +7,32 @@ on:
       - main
 
 jobs:
-  update_the_image_first:
+#  push_to_registry:
+#    name: Push Docker image to Docker Hub
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out the repo
+#        uses: actions/checkout@v3
+#
+#      - name: Log in to the Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_TOKEN }}
+#      
+#      - name: Add SHORT_SHA env property with commit short sha
+#        run: echo "TAG=`echo ${GITHUB_SHA} | cut -c1-6`" >> $GITHUB_ENV
+#        
+#      - name: Build and Push Docker Image
+#        id: build-and-push-docker-image
+#        run: |
+#          docker build \
+#            --tag ${{ secrets.DOCKER_ACCOUNT }}/web-app:${TAG} \
+#            .
+#
+#          docker push ${{ secrets.DOCKER_ACCOUNT }}/web-app:${TAG}
+
+  update_the_image_test:
     name: Update image in GitOps repo
     runs-on: ubuntu-latest
     steps:
@@ -15,18 +40,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MichaelFarook/gitops-env
-          path: main
           token: ${{ secrets.GITOPS_KEY }}
+
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "TAG=`echo ${GITHUB_SHA} | cut -c1-6`" >> $GITHUB_ENV
         
       - name: Update Image Version in the related GitOps repo values.yaml
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'environments/production/values.yaml'
           propertyPath: 'applications.frontend_version'
-          value: ${{ github.sha }}
+          value: ${TAG}
           repository: MichaelFarook/gitops-env
           branch: main
           targetBranch: main
-          message: 'Update workers Image Version to ${{ github.sha }} frontend'
+          message: 'Update workers Image Version to ${TAG} frontend'
           token: ${{ secrets.GITOPS_KEY }}
-          
