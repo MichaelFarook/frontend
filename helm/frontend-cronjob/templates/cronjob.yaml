@@ -1,0 +1,7 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata: 
+  name: {{ template "frontend-cron.fullname" . }}
+  namespace: {{ .Values.environment }}
+  labels:
+    
