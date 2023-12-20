@@ -1,0 +1,28 @@
+name: Bump version of repo
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - release
+
+jobs:
+  generate_git_tags:
+    if: githu.event.pull_request.merged == true
+    name: "GitHub Tags"
+    runs-on: ubuntu-latest
+    outputs:
+      output_new_tag: ${{ steps.taggerFinal.outputs.new_tag }}
+    steps:
+    - name: "Checkout"
+      uses: "actions/checkout@v3"
+      with:
+        ref: ${{ github.event.pull_request.merge_commit_sha }}
+        fetch-dept: '0'
+
+    - name: "Bump version and push tag"
+      uses: anothrNick/github-tag-action@1.64.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITOPS_KEY }}
+        WITH_V: true
