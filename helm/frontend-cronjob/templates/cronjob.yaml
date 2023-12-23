@@ -4,4 +4,37 @@ metadata:
   name: {{ template "frontend-cron.fullname" . }}
   namespace: {{ .Values.environment }}
   labels:
-    
+    {{- include "frontend-cron.labels" . | nindent 4 }}
+{{- with .Values.serviceAccount.annotations }}
+  annotations:
+{{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  schedule: "{{ .Values.cronjob.shedule }}"
+  {{- with .Values.cronjob.concurrencyPolicy }}
+  concurrencyPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.cronjob.faildedJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ . }}
+  {{- end }}
+  {{- with .Values.cronjob.successfulJobsHistoryLimit }}
+  sucessfulJobsHIstoryLimit: {{ . }}
+  {{- end }}
+  {{- with .Values.cronjob.startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ . }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: {{ .Chart.Name }}
+            image: "{{ .Values.image.repository}}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            resources:
+          restartPolicy: OnFailure
+          serviceAccountName: {{ template "frontend-cron.serviceAccountName" .}}
+       {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{ toYaml . | nindent 12 }}
+       {{- end }}
