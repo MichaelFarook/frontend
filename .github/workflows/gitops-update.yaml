@@ -1,9 +1,11 @@
 name: CI/CD to GitOps
 
+#on:
+#  push:
+#    branch:
+#      - main
 on:
-  push:
-    branch:
-      - staging 
+  workflow_dispatch:
 
 jobs:
   push_to_registry:
