@@ -1,0 +1,80 @@
+name: CI/CD to GitOps
+
+on:
+  workflow_dispatch:
+
+jobs:
+  scan:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITOPS_KEY }}
+
+  build_and_push:
+    name: Push Docker image to Docker Hub
+    needs: [scan]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to the Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and Push Docker Image
+        id: build-and-push-docker-image
+        run: |
+          docker build \
+            --tag ${{ secrets.DOCKER_ACCOUNT }}/web-app:prod-${{ github.sha }} \
+            .
+
+          docker push ${{ secrets.DOCKER_ACCOUNT }}/web-app:prod-${{ github.sha }}
+
+  update_the_image:
+    name: Update image in GitOps repo
+    needs: [build_and_push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Target Repository
+        uses: actions/checkout@v4
+        with:
+          repository: MichaelFarook/gitops-env
+          token: ${{ secrets.GITOPS_KEY }}
+
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "TAG=`echo ${GITHUB_SHA} | cut -c1-6`" >> $GITHUB_ENV
+        
+      - name: Update Image Version in the related GitOps repo values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'environments/production/values.yaml'
+          propertyPath: 'applications.frontend_version'
+          value: prod-${{ github.sha }}
+          repository: MichaelFarook/gitops-env
+          branch: main
+          targetBranch: main
+          message: 'Update workers Image Version to ${{ github.sha }} frontend'
+          token: ${{ secrets.GITOPS_KEY }}
+
+  send_slack_message:
+    name: Send Slack Message
+    needs: [update_the_image, build_and_push]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_USERNAME: PupaBot
+        SLACK_COLOR: ${{ job.status }}
+        SLACK_TITLE: Message
+        SLACK_MESSAGE: "The status of the workflow is ${{ job.status }}"
