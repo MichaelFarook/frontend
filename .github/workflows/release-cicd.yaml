@@ -76,4 +76,4 @@ jobs:
         uses: ncipollo/release-action@v1.10.0
         with:
           tag: ${{ needs.generate_git_tags.outputs.output_new_tag }}
-          token: ${{ secrets.TAG_TOKEN }}
+          token: ${{ secrets.GITOPS_KEY }}
