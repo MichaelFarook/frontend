@@ -1,28 +1,78 @@
-name: Bump version of repo
+name: Tag and Release
 
+#on:
+#  pull_request:
+#    types:
+#      - closed
+#    branches:
+#      - release
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
-      - release
+      - main
 
 jobs:
+  information:
+    name: GitHub Context
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_CONTEXT: ${{ toJson(github) }}
+    steps:
+      - name: Info
+        run: echo "$GITHUB_CONTEXT"
+
   generate_git_tags:
     if: githu.event.pull_request.merged == true
-    name: "GitHub Tags"
+    name: GitHub Tags
     runs-on: ubuntu-latest
     outputs:
       output_new_tag: ${{ steps.taggerFinal.outputs.new_tag }}
     steps:
-    - name: "Checkout"
-      uses: "actions/checkout@v3"
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         ref: ${{ github.event.pull_request.merge_commit_sha }}
         fetch-dept: '0'
 
-    - name: "Bump version and push tag"
-      uses: anothrNick/github-tag-action@1.64.0
+    - name: Generate Dry Run Version
+      uses: anothrNick/github-tag-action@1.67.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITOPS_KEY }}
         WITH_V: true
+        DRY_RUN: true
+
+    - name: Echo new tag
+      run: |
+        echo: "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+
+    - name: Echo tag
+      run: |
+        echo: "The current tag version is: ${{ steps.taggerDryRun.outputs.tag }}"
+
+    - name: Echo part tag
+      run: |
+        echo: "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
+
+    - name: Generate Final Version
+      uses: anothrNick/github-tag-action@1.67.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITOPS_KEY }}
+        WITH_V: true
+
+    - name: Echo New tag
+      run: |
+        echo: "The next tag version will be: ${{ steps.taggerFinal.outputs.new_tag }}"
+
+  generate_git_release:
+    needs: generate_git_tags
+    name: GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Release Action
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          tag: ${{ needs.generate_git_tags.outputs.output_new_tag }}
+          token: ${{ secrets.TAG_TOKEN }}
