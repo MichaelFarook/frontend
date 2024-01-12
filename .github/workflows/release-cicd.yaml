@@ -55,6 +55,7 @@ jobs:
         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
 
     - name: Generate Final Version
+      id: taggerFinal
       uses: anothrNick/github-tag-action@1.67.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITOPS_KEY }}
