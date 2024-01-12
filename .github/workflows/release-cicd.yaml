@@ -35,6 +35,7 @@ jobs:
         fetch-dept: '0'
 
     - name: Generate Dry Run Version
+      id: taggerDryRun
       uses: anothrNick/github-tag-action@1.67.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITOPS_KEY }}
@@ -61,7 +62,7 @@ jobs:
 
     - name: Echo New tag
       run: |
-        echo: "The next tag version will be: ${{ steps.taggerFinal.outputs.new_tag }}"
+        echo "The next tag version will be: ${{ steps.taggerFinal.outputs.new_tag }}"
 
   generate_git_release:
     needs: generate_git_tags
