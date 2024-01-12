@@ -1,9 +1,11 @@
 name: CI/CD to GitOps
 
+#on:
+#  push:
+#    branch:
+#      - main
 on:
-  push:
-    branch:
-      - check
+  workflow_dispatch:
 
 jobs:
   scan:
