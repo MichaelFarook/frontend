@@ -1,0 +1,9 @@
+dependencies:
+- name: ui-service
+  repository: file://services/ui-service
+  version: 0.1.0
+- name: api-gateway
+  repository: file://services/api-gateway
+  version: 0.1.0
+digest: sha256:9cdba7b0fac9a8080adb55a30be95bd1c32fb9d67448237beb36cdb0f9ecec84
+generated: "2024-05-31T23:38:21.97894284+03:00"

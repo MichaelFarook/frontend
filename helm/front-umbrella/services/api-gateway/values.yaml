@@ -1,18 +1,39 @@
-# Default values for frontend.
+# Default values for api-gateway.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Global variables for Umbrella Helm Chart
 global:
   replicaCount: 2
   nameSpace: development
   region: us-east-1
+
 image:
   repository: michaelfarook/web-app
   pullPolicy: IfNotPresent
   tag: "c49666"
+
 imagePullSecrets: []
-nameOverride: "frontend"
-fullnameOverride: "frontend"
+nameOverride: "api-gateway"
+fullnameOverride: "api-gateway"
+
+livenessProbe: {}
+#  httpGet:
+#    path: /
+#    port: http
+#  initialDelaySeconds: 30
+#  periodSeconds: 30
+#  timeoutSeconds: 30
+#  failureThreshold: 6
+readinessProbe: {}
+#  httpGet:
+#    path: /
+#    port: http
+#  initialDelaySeconds: 30
+#  periodSeconds: 30
+#  timeoutSeconds: 30
+#  failureThreshold: 6
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -21,7 +42,10 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-podAnnotations: {}
+
+podAnnotations:
+  processorName: api-gateway
+
 podSecurityContext: {}
 # fsGroup: 2000
 
@@ -43,7 +67,7 @@ ingress:
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: frontend.app.local
+    - host: api-gateway.app.local
       paths:
         - path: /
           pathType: ImplementationSpecific
@@ -51,12 +75,8 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
 resources: {}
-# We usually recommend not to specify default resources and to leave this as a conscious
-# choice for the user. This also increases chances charts run on environments with little
-# resources, such as Minikube. If you do want to specify resources, uncomment the following
-# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-# limits:
 #   cpu: 100m
 #   memory: 128Mi
 # requests:
@@ -67,8 +87,9 @@ autoscaling:
   enabled: false
   minReplicas: 2
   maxReplicas: 3 
+  targetMemoryUtilizationPercentage: 80
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+
 nodeSelector: {}
 tolerations: []
 affinity: {}
